@@ -70,8 +70,8 @@ function BoardingSearchPage() {
       setError("");
       setLoading(true);
       const response = await getListings(toQueryParams(currentFilters, currentPage));
-      
-      const listings = response.listings || [];
+
+      const listings = response.items || response.listings || [];
       
       // Apply sorting
       let sorted = [...listings];

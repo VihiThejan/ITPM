@@ -8,10 +8,8 @@ import {
   Stack,
   Typography,
   Box,
-  Rating,
-  Link
+  Rating
 } from "@mui/material";
-import StarIcon from "@mui/icons-material/Star";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import { Link as RouterLink } from "react-router-dom";
@@ -19,6 +17,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { formatLkr } from "../../utils/formatters";
 
 function BoardingCard({ listing }) {
+  const listingTitle = listing.name || listing.title || "Boarding Listing";
+  const listingLocation = listing.locationText || listing.location || "Location not specified";
   const imageUrl = listing.photos?.[0] || "https://placehold.co/600x400?text=Boarding";
   const hasRating = listing.averageRating > 0;
   const reviewCount = listing.reviewCount || 0;
@@ -43,7 +43,7 @@ function BoardingCard({ listing }) {
           component="img"
           height="200"
           image={imageUrl}
-          alt={listing.name}
+          alt={listingTitle}
           sx={{
             transition: "transform 0.3s ease",
             "&:hover": {
@@ -88,7 +88,7 @@ function BoardingCard({ listing }) {
               display: "-webkit-box"
             }}
           >
-            {listing.name}
+            {listingTitle}
           </Typography>
 
           {/* Location */}
@@ -102,7 +102,7 @@ function BoardingCard({ listing }) {
               }}
             />
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {listing.location || "Location not specified"}
+              {listingLocation}
             </Typography>
           </Box>
 
