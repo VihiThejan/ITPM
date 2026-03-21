@@ -1,1 +1,0 @@
-import{H as t}from"./index-IOBACjMa.js";const n={border:0,clip:"rect(0 0 0 0)",height:"1px",margin:"-1px",overflow:"hidden",padding:0,position:"absolute",whiteSpace:"nowrap",width:"1px"},a=async s=>(await t.get("/listings",{params:s})).data,o=async s=>(await t.get(`/listings/${s}`)).data;export{o as a,a as g,n as v};

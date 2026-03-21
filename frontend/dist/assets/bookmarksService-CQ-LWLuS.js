@@ -1,1 +1,0 @@
-import{H as o}from"./index-IOBACjMa.js";const r=async()=>(await o.get("/bookmarks")).data,t=async a=>(await o.post("/bookmarks",{listingId:a})).data,n=async a=>{await o.delete(`/bookmarks/${a}`)};export{t as a,r as g,n as r};
