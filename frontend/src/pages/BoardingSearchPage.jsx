@@ -8,7 +8,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Fade,
   Grid2,
+  Grow,
   MenuItem,
   Pagination,
   Paper,
@@ -311,6 +313,81 @@ function BoardingSearchPage() {
 
   const compareDifferences = getKeyDifferences(compareListings);
 
+  const handlePrintCompare = () => {
+    if (compareListings.length < 2) {
+      return;
+    }
+
+    const columns = compareListings
+      .map((listing) => {
+        const facilities = (listing.facilities || []).length
+          ? listing.facilities.join(", ")
+          : "N/A";
+
+        return `
+          <th style="border:1px solid #d1d5db;padding:10px;background:#f8fafc;vertical-align:top;">
+            <div style="font-size:16px;font-weight:700;color:#0f172a;">${listing.title || listing.name || "Boarding"}</div>
+            <div style="font-size:12px;color:#475569;margin-top:4px;">${listing.locationText || listing.location || "N/A"}</div>
+          </th>
+        `;
+      })
+      .join("");
+
+    const row = (label, valueFn) => `
+      <tr>
+        <td style="border:1px solid #d1d5db;padding:10px;font-weight:600;background:#f8fafc;">${label}</td>
+        ${compareListings
+          .map(
+            (listing) =>
+              `<td style="border:1px solid #d1d5db;padding:10px;">${valueFn(listing)}</td>`
+          )
+          .join("")}
+      </tr>
+    `;
+
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>BoardMe Compare Boardings</title>
+        </head>
+        <body style="font-family:Segoe UI, Arial, sans-serif;padding:24px;color:#0f172a;">
+          <h2 style="margin:0 0 6px 0;">BoardMe - Boarding Comparison</h2>
+          <p style="margin:0 0 18px 0;color:#475569;">Generated on ${new Date().toLocaleString()}</p>
+
+          <table style="border-collapse:collapse;width:100%;table-layout:fixed;">
+            <thead>
+              <tr>
+                <th style="border:1px solid #d1d5db;padding:10px;background:#e2e8f0;">Criteria</th>
+                ${columns}
+              </tr>
+            </thead>
+            <tbody>
+              ${row("Price", (listing) => `LKR ${Number(listing.rent || 0).toLocaleString()} / month`)}
+              ${row("Room Type", (listing) => listing.roomType || "N/A")}
+              ${row("Rating", (listing) => `${Number(listing.averageRating || 0).toFixed(1)} (${listing.reviewCount || 0} reviews)`)}
+              ${row("Distance", (listing) => `${listing.distanceFromSliitKm ?? "N/A"} km`) }
+              ${row("Facilities", (listing) =>
+                (listing.facilities || []).length ? listing.facilities.join(", ") : "N/A")}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open("", "_blank", "noopener,noreferrer");
+    if (!printWindow) {
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
   const hasActiveFilters = 
     filters.location.trim() !== "" || 
     filters.roomType !== "" || 
@@ -332,7 +409,7 @@ function BoardingSearchPage() {
   );
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{ pb: compareListings.length ? { xs: 13, sm: 12, md: 10 } : 0 }}>
       {/* Header Section */}
       <Box>
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
@@ -599,6 +676,62 @@ function BoardingSearchPage() {
         </Grid2>
       </Grid2>
 
+      <Fade in={compareListings.length > 0} timeout={220}>
+        <Paper
+          elevation={6}
+          sx={{
+            display: compareListings.length > 0 ? "block" : "none",
+            position: "fixed",
+            bottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+            left: { xs: 8, md: 260 },
+            right: { xs: 8, md: 16 },
+            zIndex: 1200,
+            p: 1.25,
+            borderRadius: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            backdropFilter: "blur(8px)",
+            bgcolor: "rgba(255,255,255,0.96)"
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1}
+            alignItems={{ xs: "stretch", sm: "center" }}
+            justifyContent="space-between"
+          >
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+              {compareListings.map((item) => (
+                <Grow in key={item._id} timeout={220}>
+                  <Chip
+                    label={item.title || item.name}
+                    onDelete={() =>
+                      setCompareListings((prev) => prev.filter((entry) => entry._id !== item._id))
+                    }
+                    size="small"
+                    sx={{ transition: "transform 0.2s ease", "&:hover": { transform: "translateY(-1px)" } }}
+                  />
+                </Grow>
+              ))}
+            </Stack>
+
+            <Stack direction="row" spacing={1}>
+              <Button size="small" onClick={handleClearCompare} color="inherit">
+                Clear
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => setIsCompareOpen(true)}
+                disabled={compareListings.length < 2}
+              >
+                Compare Now ({compareListings.length})
+              </Button>
+            </Stack>
+          </Stack>
+        </Paper>
+      </Fade>
+
       <Dialog
         open={isCompareOpen}
         onClose={() => setIsCompareOpen(false)}
@@ -678,6 +811,13 @@ function BoardingSearchPage() {
         <DialogActions>
           <Button onClick={handleClearCompare} color="inherit">
             Clear Compare
+          </Button>
+          <Button
+            onClick={handlePrintCompare}
+            color="inherit"
+            disabled={compareListings.length < 2}
+          >
+            Print Compare
           </Button>
           <Button onClick={() => setIsCompareOpen(false)} variant="contained">
             Close
