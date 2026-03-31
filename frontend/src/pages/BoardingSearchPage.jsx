@@ -14,6 +14,7 @@ import {
   Paper,
   Select,
   Skeleton,
+  Snackbar,
   Stack,
   Typography,
   Chip
@@ -43,6 +44,71 @@ const defaultFilters = {
   facilities: []
 };
 
+const COMPARE_STORAGE_KEY = "boardme_compare_listings";
+
+const getRelativeViewedTime = (dateValue) => {
+  if (!dateValue) {
+    return "just now";
+  }
+
+  const timestamp = new Date(dateValue).getTime();
+  if (Number.isNaN(timestamp)) {
+    return "just now";
+  }
+
+  const diffMs = timestamp - Date.now();
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  if (Math.abs(diffMs) < hour) {
+    return rtf.format(Math.round(diffMs / minute), "minute");
+  }
+  if (Math.abs(diffMs) < day) {
+    return rtf.format(Math.round(diffMs / hour), "hour");
+  }
+  return rtf.format(Math.round(diffMs / day), "day");
+};
+
+const getKeyDifferences = (listings) => {
+  if (!Array.isArray(listings) || listings.length < 2) {
+    return [];
+  }
+
+  const toUniqueCount = (values) => new Set(values).size;
+
+  const roomTypes = listings.map((item) => item.roomType || "N/A");
+  const locations = listings.map((item) => item.locationText || item.location || "N/A");
+  const rents = listings.map((item) => Number(item.rent || 0));
+  const ratings = listings.map((item) => Number(item.averageRating || 0));
+  const distances = listings.map((item) => item.distanceFromSliitKm ?? "N/A");
+  const facilities = listings.map((item) => (item.facilities || []).slice().sort().join(",") || "none");
+
+  const differences = [];
+
+  if (toUniqueCount(roomTypes) > 1) {
+    differences.push("Room type differs");
+  }
+  if (toUniqueCount(locations) > 1) {
+    differences.push("Location differs");
+  }
+  if (toUniqueCount(rents) > 1) {
+    differences.push("Price differs");
+  }
+  if (toUniqueCount(ratings) > 1) {
+    differences.push("Rating differs");
+  }
+  if (toUniqueCount(distances) > 1) {
+    differences.push("Distance differs");
+  }
+  if (toUniqueCount(facilities) > 1) {
+    differences.push("Facilities differ");
+  }
+
+  return differences;
+};
+
 function BoardingSearchPage() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,6 +122,7 @@ function BoardingSearchPage() {
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [isRecentLoading, setIsRecentLoading] = useState(false);
+  const [notice, setNotice] = useState("");
 
   const page = Number(searchParams.get("page") || 1);
 
@@ -115,6 +182,25 @@ function BoardingSearchPage() {
     fetchData(filters, page);
   }, [page, sortBy]);
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COMPARE_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        setCompareListings(parsed.slice(0, 3));
+      }
+    } catch (error) {
+      setCompareListings([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(compareListings.slice(0, 3)));
+  }, [compareListings]);
+
   const loadRecentlyViewed = async () => {
     setIsRecentLoading(true);
 
@@ -154,10 +240,12 @@ function BoardingSearchPage() {
         await clearRecentlyViewed();
       } catch (requestError) {
         setError(requestError.response?.data?.message || "Failed to clear recently viewed history.");
+        return;
       }
     }
 
     setRecentlyViewed([]);
+    setNotice("Recently viewed list cleared.");
   };
 
   const handleApplyFilters = () => {
@@ -187,9 +275,41 @@ function BoardingSearchPage() {
 
     setError("");
     setCompareListings((prev) => [...prev, listing]);
+    setNotice("Boarding added to compare.");
   };
 
   const isInCompare = (listingId) => compareListings.some((item) => item._id === listingId);
+
+  const handleClearCompare = () => {
+    setCompareListings([]);
+    setNotice("Compare list cleared.");
+  };
+
+  const compareInsights = (() => {
+    if (!compareListings.length) {
+      return {
+        cheapestId: null,
+        highestRatedId: null,
+        nearestId: null
+      };
+    }
+
+    const cheapest = [...compareListings].sort((a, b) => Number(a.rent || 0) - Number(b.rent || 0))[0];
+    const highestRated = [...compareListings].sort(
+      (a, b) => Number(b.averageRating || 0) - Number(a.averageRating || 0)
+    )[0];
+    const nearest = [...compareListings].sort(
+      (a, b) => Number(a.distanceFromSliitKm ?? Number.POSITIVE_INFINITY) - Number(b.distanceFromSliitKm ?? Number.POSITIVE_INFINITY)
+    )[0];
+
+    return {
+      cheapestId: cheapest?._id || null,
+      highestRatedId: highestRated?._id || null,
+      nearestId: nearest?._id || null
+    };
+  })();
+
+  const compareDifferences = getKeyDifferences(compareListings);
 
   const hasActiveFilters = 
     filters.location.trim() !== "" || 
@@ -258,6 +378,9 @@ function BoardingSearchPage() {
                           </Typography>
                           <Typography variant="body2" color="primary.main" sx={{ fontWeight: 700 }}>
                             {formatLkr(item.rent)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            Viewed {getRelativeViewedTime(item.viewedAt)}
                           </Typography>
                           <Button
                             component={RouterLink}
@@ -484,12 +607,35 @@ function BoardingSearchPage() {
       >
         <DialogTitle>Compare Boardings</DialogTitle>
         <DialogContent dividers>
+          {compareDifferences.length ? (
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
+              {compareDifferences.map((label) => (
+                <Chip key={label} label={label} size="small" variant="outlined" color="primary" />
+              ))}
+            </Stack>
+          ) : (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Selected boardings are very similar across key factors.
+            </Alert>
+          )}
+
           <Grid2 container spacing={2}>
             {compareListings.map((listing) => (
               <Grid2 key={listing._id} size={{ xs: 12, md: 4 }}>
                 <Card variant="outlined" sx={{ height: "100%" }}>
                   <CardContent>
                     <Stack spacing={1}>
+                      <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                        {compareInsights.cheapestId === listing._id ? (
+                          <Chip size="small" color="success" label="Cheapest" />
+                        ) : null}
+                        {compareInsights.highestRatedId === listing._id ? (
+                          <Chip size="small" color="warning" label="Top Rated" />
+                        ) : null}
+                        {compareInsights.nearestId === listing._id ? (
+                          <Chip size="small" color="primary" label="Nearest" />
+                        ) : null}
+                      </Stack>
                       <Typography variant="h6" sx={{ fontWeight: 700 }}>
                         {listing.title || listing.name}
                       </Typography>
@@ -530,14 +676,21 @@ function BoardingSearchPage() {
           </Grid2>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCompareListings([])} color="inherit">
-            Clear
+          <Button onClick={handleClearCompare} color="inherit">
+            Clear Compare
           </Button>
           <Button onClick={() => setIsCompareOpen(false)} variant="contained">
             Close
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={Boolean(notice)}
+        autoHideDuration={2400}
+        onClose={() => setNotice("")}
+        message={notice}
+      />
     </Stack>
   );
 }
