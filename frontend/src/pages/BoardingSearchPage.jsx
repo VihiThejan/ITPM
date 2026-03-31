@@ -203,6 +203,31 @@ function BoardingSearchPage() {
     localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(compareListings.slice(0, 3)));
   }, [compareListings]);
 
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      if (event.altKey && event.key.toLowerCase() === "c") {
+        if (compareListings.length >= 2) {
+          event.preventDefault();
+          setIsCompareOpen(true);
+        }
+      }
+
+      if (event.altKey && event.key.toLowerCase() === "x") {
+        if (compareListings.length > 0) {
+          event.preventDefault();
+          handleClearCompare();
+        }
+      }
+
+      if (event.key === "Escape" && isCompareOpen) {
+        setIsCompareOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, [compareListings.length, isCompareOpen]);
+
   const loadRecentlyViewed = async () => {
     setIsRecentLoading(true);
 
@@ -537,6 +562,7 @@ function BoardingSearchPage() {
                     disabled={compareListings.length < 2}
                     onClick={() => setIsCompareOpen(true)}
                     sx={{ whiteSpace: "nowrap" }}
+                    title="Shortcut: Alt+C"
                   >
                     Compare ({compareListings.length})
                   </Button>
