@@ -1,6 +1,10 @@
 import { Router } from "express";
 
-import { getRecentlyViewed, trackViewed } from "../controllers/history.controller.js";
+import {
+  clearRecentlyViewed,
+  getRecentlyViewed,
+  trackViewed
+} from "../controllers/history.controller.js";
 import { requireAuth, requireRole } from "../middleware/auth.middleware.js";
 import { validateRequest } from "../middleware/validate.middleware.js";
 import { historyQuerySchema, trackViewedSchema } from "../validators/history.validators.js";
@@ -21,6 +25,13 @@ router.post(
   requireRole("student"),
   validateRequest(trackViewedSchema),
   trackViewed
+);
+
+router.delete(
+  "/viewed",
+  requireAuth,
+  requireRole("student"),
+  clearRecentlyViewed
 );
 
 export default router;

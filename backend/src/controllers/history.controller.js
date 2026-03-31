@@ -58,3 +58,12 @@ export const trackViewed = async (req, res, next) => {
     next(error);
   }
 };
+
+export const clearRecentlyViewed = async (req, res, next) => {
+  try {
+    await RecentlyViewed.deleteMany({ studentId: req.user.id });
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};

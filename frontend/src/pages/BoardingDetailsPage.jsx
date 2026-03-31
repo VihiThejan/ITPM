@@ -16,10 +16,12 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import ReviewForm from "../components/reviews/ReviewForm";
 import ReviewList from "../components/reviews/ReviewList";
 import { useAuth } from "../context/AuthContext";
-import { addBookmark } from "../services/bookmarksService";
+import { addBookmark, getBookmarks, removeBookmark } from "../services/bookmarksService";
+import { trackRecentlyViewed } from "../services/historyService";
 import { getListingById } from "../services/listingsService";
 import { createReview, getReviewsByListingId } from "../services/reviewsService";
 import { formatLkr, toWhatsAppUrl } from "../utils/formatters";
+import { saveLocalRecentlyViewed } from "../utils/recentlyViewed";
 
 function BoardingDetailsPage() {
   const { listingId } = useParams();
@@ -28,6 +30,9 @@ function BoardingDetailsPage() {
   const [listing, setListing] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isReviewSubmitting, setIsReviewSubmitting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -39,22 +44,51 @@ function BoardingDetailsPage() {
         ]);
         setListing(listingData);
         setReviews(reviewsData.items || []);
+        saveLocalRecentlyViewed(listingData);
+
+        if (user?.role === "student") {
+          trackRecentlyViewed(listingId).catch(() => {});
+        }
+
+        if (user?.role === "student") {
+          try {
+            const bookmarkData = await getBookmarks();
+            const hasBookmark = (bookmarkData.items || []).some(
+              (item) => item.listing?._id === listingId
+            );
+            setIsBookmarked(hasBookmark);
+          } catch (bookmarkError) {
+            setIsBookmarked(false);
+          }
+        } else {
+          setIsBookmarked(false);
+        }
       } catch (requestError) {
         setError(requestError.response?.data?.message || "Failed to load listing details");
       }
     };
 
     load();
-  }, [listingId]);
+  }, [listingId, user?.role]);
 
   const handleBookmark = async () => {
-    if (!user) {
-      setError("Please sign in to bookmark listings.");
+    if (!user || user.role !== "student") {
+      setError("Please sign in as a student to manage bookmarks.");
       return;
     }
 
     try {
-      await addBookmark(listingId);
+      setError("");
+      setSuccess("");
+      if (isBookmarked) {
+        await removeBookmark(listingId);
+        setIsBookmarked(false);
+        setSuccess("Removed from bookmarks.");
+      } else {
+        await addBookmark(listingId);
+        setIsBookmarked(true);
+        setSuccess("Saved to bookmarks.");
+      }
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Failed to bookmark listing");
     }
@@ -62,15 +96,26 @@ function BoardingDetailsPage() {
 
   const handleCreateReview = async ({ rating, comment }) => {
     try {
+      setError("");
+      setSuccess("");
+      setIsReviewSubmitting(true);
       await createReview({
         listingId,
         rating,
         comment
       });
-      const updatedReviews = await getReviewsByListingId(listingId);
+      const [updatedReviews, updatedListing] = await Promise.all([
+        getReviewsByListingId(listingId),
+        getListingById(listingId)
+      ]);
       setReviews(updatedReviews.items || []);
+      setListing(updatedListing);
+      setSuccess("Your review was submitted successfully.");
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Failed to submit review");
+      throw requestError;
+    } finally {
+      setIsReviewSubmitting(false);
     }
   };
 
@@ -108,7 +153,7 @@ function BoardingDetailsPage() {
 
           <Stack direction="row" spacing={1.5}>
             <Button variant="contained" onClick={handleBookmark}>
-              Save to Bookmarks
+              {isBookmarked ? "Remove Bookmark" : "Save to Bookmarks"}
             </Button>
             <Button
               component={Link}
@@ -150,7 +195,7 @@ function BoardingDetailsPage() {
           {user?.role === "student" && user?.isVerifiedStudent ? (
             <Card variant="outlined">
               <CardContent>
-                <ReviewForm onSubmit={handleCreateReview} />
+                <ReviewForm onSubmit={handleCreateReview} isSubmitting={isReviewSubmitting} />
               </CardContent>
             </Card>
           ) : (
@@ -170,6 +215,7 @@ function BoardingDetailsPage() {
             </Alert>
           )}
 
+          {success ? <Alert severity="success">{success}</Alert> : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
         </Stack>
       </Grid2>

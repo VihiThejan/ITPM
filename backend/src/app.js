@@ -6,6 +6,7 @@ import listingsRoutes from "./routes/listings.routes.js";
 import reviewsRoutes from "./routes/reviews.routes.js";
 import bookmarksRoutes from "./routes/bookmarks.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import historyRoutes from "./routes/history.routes.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/listings", listingsRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/bookmarks", bookmarksRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/history", historyRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;

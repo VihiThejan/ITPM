@@ -1,18 +1,22 @@
 import { Button, Rating, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 
-function ReviewForm({ onSubmit }) {
+function ReviewForm({ onSubmit, isSubmitting = false }) {
   const [rating, setRating] = useState(4);
   const [comment, setComment] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSubmit({
-      rating,
-      comment
-    });
-    setComment("");
-    setRating(4);
+    try {
+      await onSubmit({
+        rating,
+        comment
+      });
+      setComment("");
+      setRating(4);
+    } catch (error) {
+      // Parent handles error alerts; keep user input for retry.
+    }
   };
 
   return (
@@ -23,6 +27,7 @@ function ReviewForm({ onSubmit }) {
           name="rating"
           value={rating}
           onChange={(_, value) => setRating(value || 1)}
+          disabled={isSubmitting}
         />
         <TextField
           multiline
@@ -32,9 +37,10 @@ function ReviewForm({ onSubmit }) {
           inputProps={{ minLength: 10, maxLength: 1000 }}
           onChange={(event) => setComment(event.target.value)}
           placeholder="Share your experience with this boarding"
+          disabled={isSubmitting}
         />
-        <Button type="submit" variant="contained">
-          Submit Review
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit Review"}
         </Button>
       </Stack>
     </form>
