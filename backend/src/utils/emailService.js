@@ -41,5 +41,16 @@ export const sendOtpEmail = async (toEmail, firstName, otp) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn("\n⚠️ Email credentials not configured. Skipping email send.");
+    console.warn(`[MOCK EMAIL] To: ${toEmail} | OTP Code: ${otp}\n`);
+    return;
+  }
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Failed to send OTP email:", error);
+    throw new Error("Failed to send verification email. Please try again later.");
+  }
 };
