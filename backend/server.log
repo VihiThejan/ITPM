@@ -1,0 +1,2 @@
+[2026-04-01T19:03:36.170Z] 📨 GET /api/health | IP: ::1 | Body: {}
+[2026-04-01T19:03:36.174Z] 📤 GET /api/health | Status: 404 | Duration: 5ms
