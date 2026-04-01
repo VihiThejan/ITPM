@@ -9,6 +9,8 @@ Component-based MERN application focused on student boarding discovery with:
 - Student bookmarks
 - OTP-based role registration and login (Student, Hostel Owner, Admin)
 - Student, owner, and admin profile/dashboard views
+- Admin moderation for pending listings and reviews (approve/reject/deactivate)
+- Owner privacy control: review comments hidden when viewed by owners
 - Landing page
 - Home page
 
@@ -56,6 +58,7 @@ ITPM/
 - `/student-profile` Student profile (student-only)
 - `/owner-dashboard` Owner profile/dashboard (owner-only)
 - `/admin-dashboard` Admin dashboard (admin-only)
+- `/roommates` Verified-student roommate posts
 
 ### Student UX highlights
 
@@ -92,6 +95,14 @@ ITPM/
 - `GET /api/admin` (admin only)
 - `GET /api/admin/:id` (admin only)
 - `DELETE /api/admin/:id` (admin only)
+- `GET /api/admin/moderation/listings/pending` (admin only)
+- `PATCH /api/admin/moderation/listings/:listingId` (admin only)
+- `GET /api/admin/moderation/reviews/pending` (admin only)
+- `PATCH /api/admin/moderation/reviews/:reviewId` (admin only)
+- `GET /api/admin/moderation/roommates/pending` (admin only)
+- `PATCH /api/admin/moderation/roommates/:postId` (admin only)
+- `GET /api/roommates` (verified student only)
+- `POST /api/roommates` (verified student only)
 - `POST /api/otp/send`
 - `POST /api/otp/verify`
 - `POST /api/otp/resend`

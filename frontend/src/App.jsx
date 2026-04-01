@@ -19,6 +19,7 @@ const StudentProfilePage = lazy(() => import("./pages/StudentProfilePage"));
 const HostelOwnerProfilePage = lazy(() => import("./pages/HostelOwnerProfilePage"));
 const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const RoommatesPage = lazy(() => import("./pages/RoommatesPage"));
 
 function RouteFallback() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/bookmarks" element={<BookmarksPage />} />
             <Route path="/student-profile" element={<StudentProfilePage />} />
+            <Route path="/roommates" element={<RoommatesPage />} />
           </Route>
           <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
             <Route path="/owner-dashboard" element={<HostelOwnerProfilePage />} />

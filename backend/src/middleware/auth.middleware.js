@@ -3,31 +3,57 @@ import { normalizeRole } from "../utils/roleModelResolver.js";
 
 const unauthorizedError = Object.assign(new Error("Unauthorized"), { status: 401 });
 
-export const requireAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+const decodeTokenFromHeader = (authHeader) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return next(unauthorizedError);
+    return null;
   }
 
   const token = authHeader.replace("Bearer ", "").trim();
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+  const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-    const resolvedId = payload.sub || payload.id;
-    if (!resolvedId) {
+  const resolvedId = payload.sub || payload.id;
+  if (!resolvedId) {
+    return null;
+  }
+
+  return {
+    id: resolvedId,
+    role: normalizeRole(payload.role),
+    roleCode: payload.roleCode || payload.role,
+    isVerifiedStudent: Boolean(payload.isVerifiedStudent)
+  };
+};
+
+export const requireAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  try {
+    const user = decodeTokenFromHeader(authHeader);
+    if (!user) {
       return next(unauthorizedError);
     }
-
-    req.user = {
-      id: resolvedId,
-      role: normalizeRole(payload.role),
-      roleCode: payload.roleCode || payload.role,
-      isVerifiedStudent: Boolean(payload.isVerifiedStudent)
-    };
+    req.user = user;
     return next();
   } catch (error) {
     return next(unauthorizedError);
   }
+};
+
+export const attachOptionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return next();
+  }
+
+  try {
+    const user = decodeTokenFromHeader(authHeader);
+    if (user) {
+      req.user = user;
+    }
+  } catch (error) {
+    // Ignore invalid optional auth and continue as guest.
+  }
+
+  return next();
 };
 
 export const requireRole = (...roles) => (req, res, next) => {

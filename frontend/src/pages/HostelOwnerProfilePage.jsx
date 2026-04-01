@@ -1,4 +1,4 @@
-import { Alert, Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Button, Card, CardContent, Chip, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "../context/AuthContext";
@@ -55,6 +55,17 @@ function HostelOwnerProfilePage() {
           <Typography variant="h4" sx={{ fontWeight: 700 }}>
             Hostel Owner Profile
           </Typography>
+
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="body2" color="text.secondary">
+              Verification Status:
+            </Typography>
+            <Chip
+              size="small"
+              color={form.isVerified ? "success" : "warning"}
+              label={form.isVerified ? "Verified" : "Pending verification"}
+            />
+          </Stack>
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField label="First Name" value={form.firstName || ""} onChange={(e) => update("firstName", e.target.value)} fullWidth />

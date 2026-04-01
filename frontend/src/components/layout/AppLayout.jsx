@@ -30,6 +30,7 @@ const getNavItems = (role) => {
     return [
       ...common,
       { to: "/bookmarks", label: "My Bookmarks" },
+      { to: "/roommates", label: "Roommates" },
       { to: "/student-profile", label: "My Profile" }
     ];
   }

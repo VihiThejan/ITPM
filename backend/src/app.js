@@ -11,6 +11,8 @@ import studentsRoutes from "./routes/students.routes.js";
 import hostelOwnersRoutes from "./routes/hostelOwners.routes.js";
 import adminsRoutes from "./routes/admins.routes.js";
 import otpRoutes from "./routes/otp.routes.js";
+import moderationRoutes from "./routes/moderation.routes.js";
+import roommatesRoutes from "./routes/roommates.routes.js";
 
 const app = express();
 
@@ -34,7 +36,9 @@ app.use("/api/history", historyRoutes);
 app.use("/api/students", studentsRoutes);
 app.use("/api/hostel-owners", hostelOwnersRoutes);
 app.use("/api/admin", adminsRoutes);
+app.use("/api/admin/moderation", moderationRoutes);
 app.use("/api/otp", otpRoutes);
+app.use("/api/roommates", roommatesRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;

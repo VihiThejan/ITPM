@@ -5,6 +5,7 @@ import {
   getReviewsByListingId
 } from "../controllers/reviews.controller.js";
 import {
+  attachOptionalAuth,
   requireAuth,
   requireRole,
   requireVerifiedStudent
@@ -17,7 +18,12 @@ import {
 
 const router = Router();
 
-router.get("/", validateRequest(reviewQuerySchema, "query"), getReviewsByListingId);
+router.get(
+  "/",
+  attachOptionalAuth,
+  validateRequest(reviewQuerySchema, "query"),
+  getReviewsByListingId
+);
 router.post(
   "/",
   requireAuth,

@@ -4,6 +4,7 @@ import BoardingListing from "../models/BoardingListing.js";
 export const getReviewsByListingId = async (req, res, next) => {
   try {
     const { listingId } = req.query;
+    const isOwnerViewer = req.user?.role === "owner";
 
     const reviews = await Review.find({
       listingId,
@@ -16,7 +17,7 @@ export const getReviewsByListingId = async (req, res, next) => {
     const safeReviews = reviews.map((review) => ({
       _id: review._id,
       rating: review.rating,
-      comment: review.comment,
+      comment: isOwnerViewer ? "Comment hidden for owner privacy policy." : review.comment,
       studentName: review.studentId?.name || "Anonymous",
       createdAt: review.createdAt
     }));
@@ -45,7 +46,7 @@ export const createReview = async (req, res, next) => {
       studentId: req.user.id,
       rating,
       comment,
-      status: "approved"
+      status: "pending"
     });
 
     res.status(201).json({
