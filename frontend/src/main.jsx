@@ -10,10 +10,16 @@ import "./styles.css";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#0d47a1"
+      main: "#2563eb"
     },
     secondary: {
-      main: "#00897b"
+      main: "#ffedd5"
+    },
+    error: {
+      main: "#dc2626"
+    },
+    accent: {
+      main: "#dc2626"
     },
     background: {
       default: "#f4f7fb"

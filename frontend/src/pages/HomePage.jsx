@@ -86,7 +86,7 @@ function HomePage() {
       <Paper
         elevation={0}
         sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
           borderRadius: 2,
           p: 4,
           color: "white"
@@ -110,7 +110,7 @@ function HomePage() {
             sx={{
               alignSelf: "flex-start",
               backgroundColor: "white",
-              color: "#667eea",
+              color: "#2563eb",
               fontWeight: 600,
               "&:hover": {
                 backgroundColor: "rgba(255, 255, 255, 0.9)"
@@ -323,7 +323,7 @@ function HomePage() {
       <Paper
         elevation={0}
         sx={{
-          background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+          background: "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)",
           borderRadius: 2,
           p: 4,
           color: "white",
@@ -345,7 +345,7 @@ function HomePage() {
             sx={{
               alignSelf: "center",
               backgroundColor: "white",
-              color: "#f5576c",
+              color: "#dc2626",
               fontWeight: 600,
               "&:hover": {
                 backgroundColor: "rgba(255, 255, 255, 0.9)"

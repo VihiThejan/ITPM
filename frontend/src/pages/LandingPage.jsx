@@ -13,7 +13,7 @@ function LandingPage() {
       sx={{
         minHeight: "100vh",
         background:
-          "radial-gradient(circle at 20% 20%, rgba(13,71,161,0.12), transparent 35%), radial-gradient(circle at 90% 70%, rgba(0,137,123,0.1), transparent 35%), #f7fafe",
+          "radial-gradient(circle at 20% 20%, rgba(37,99,235,0.12), transparent 35%), radial-gradient(circle at 90% 70%, rgba(220,38,38,0.1), transparent 35%), #f7fafe",
         display: "flex",
         alignItems: "center"
       }}
