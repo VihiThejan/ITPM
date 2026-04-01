@@ -135,6 +135,7 @@ cd backend
 npm install
 copy .env.example .env
 npm run seed
+npm run seed:roles
 npm run dev
 ```
 
@@ -152,6 +153,10 @@ npm run dev
 - Seeded demo users:
   - Student: `nimali@my.sliit.lk` / `Student@123`
   - Owner: `kamal.owner@gmail.com` / `Owner@123`
+- Role auth seed users (for `/api/auth/login/role`):
+  - Student: `it22990000@my.sliit.lk` / `Student@123`
+  - Owner: `owner.demo@gmail.com` / `Owner@123`
+  - Admin: `admin.demo@gmail.com` / `Admin@123`
 - Seed script now includes multiple diverse boardings to demonstrate filters and compare.
 - Protected endpoints expect JWT payload fields:
   - `sub` (user id)

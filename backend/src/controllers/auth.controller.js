@@ -28,7 +28,8 @@ const signRoleToken = (roleUser) =>
       id: roleUser._id.toString(),
       role: normalizeRole(roleUser.role),
       roleCode: roleUser.role,
-      isVerifiedStudent: normalizeRole(roleUser.role) === "student"
+      isVerifiedStudent:
+        normalizeRole(roleUser.role) === "student" && Boolean(roleUser.isVerified)
     },
     process.env.JWT_SECRET,
     {

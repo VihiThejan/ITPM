@@ -13,7 +13,7 @@ const generateToken = (user) =>
       id: user._id.toString(),
       role: normalizeRole(user.role),
       roleCode: user.role,
-      isVerifiedStudent: normalizeRole(user.role) === "student"
+      isVerifiedStudent: normalizeRole(user.role) === "student" && Boolean(user.isVerified)
     },
     process.env.JWT_SECRET,
     {
