@@ -7,6 +7,10 @@ import reviewsRoutes from "./routes/reviews.routes.js";
 import bookmarksRoutes from "./routes/bookmarks.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import historyRoutes from "./routes/history.routes.js";
+import studentsRoutes from "./routes/students.routes.js";
+import hostelOwnersRoutes from "./routes/hostelOwners.routes.js";
+import adminsRoutes from "./routes/admins.routes.js";
+import otpRoutes from "./routes/otp.routes.js";
 
 const app = express();
 
@@ -27,6 +31,10 @@ app.use("/api/reviews", reviewsRoutes);
 app.use("/api/bookmarks", bookmarksRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/history", historyRoutes);
+app.use("/api/students", studentsRoutes);
+app.use("/api/hostel-owners", hostelOwnersRoutes);
+app.use("/api/admin", adminsRoutes);
+app.use("/api/otp", otpRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;

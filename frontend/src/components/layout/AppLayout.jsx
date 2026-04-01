@@ -20,15 +20,35 @@ import { useAuth } from "../../context/AuthContext";
 
 const sidebarWidth = 240;
 
-const navItems = [
-  { to: "/home", label: "Home" },
-  { to: "/boardings", label: "Find Boarding" },
-  { to: "/bookmarks", label: "My Bookmarks" }
-];
+const getNavItems = (role) => {
+  const common = [
+    { to: "/home", label: "Home" },
+    { to: "/boardings", label: "Find Boarding" }
+  ];
+
+  if (role === "student") {
+    return [
+      ...common,
+      { to: "/bookmarks", label: "My Bookmarks" },
+      { to: "/student-profile", label: "My Profile" }
+    ];
+  }
+
+  if (role === "owner") {
+    return [...common, { to: "/owner-dashboard", label: "Owner Dashboard" }];
+  }
+
+  if (role === "admin") {
+    return [{ to: "/admin-dashboard", label: "Admin Dashboard" }];
+  }
+
+  return common;
+};
 
 function AppLayout() {
   const { user, logout, isAuthLoading } = useAuth();
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const navItems = getNavItems(user?.role);
 
   const closeMobileDrawer = () => setIsMobileDrawerOpen(false);
 

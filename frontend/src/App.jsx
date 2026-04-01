@@ -12,6 +12,13 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const BoardingSearchPage = lazy(() => import("./pages/BoardingSearchPage"));
 const BoardingDetailsPage = lazy(() => import("./pages/BoardingDetailsPage"));
 const BookmarksPage = lazy(() => import("./pages/BookmarksPage"));
+const StudentRegistrationPage = lazy(() => import("./pages/StudentRegistrationPage"));
+const HostelOwnerRegistrationPage = lazy(() => import("./pages/HostelOwnerRegistrationPage"));
+const OtpVerificationPage = lazy(() => import("./pages/OtpVerificationPage"));
+const StudentProfilePage = lazy(() => import("./pages/StudentProfilePage"));
+const HostelOwnerProfilePage = lazy(() => import("./pages/HostelOwnerProfilePage"));
+const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 
 function RouteFallback() {
   return (
@@ -29,6 +36,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register-student" element={<StudentRegistrationPage />} />
+          <Route path="/register-hostel-owner" element={<HostelOwnerRegistrationPage />} />
+          <Route path="/verify-otp" element={<OtpVerificationPage />} />
+          <Route path="/admin-login" element={<AdminLoginPage />} />
         </Route>
 
         <Route element={<AppLayout />}>
@@ -37,6 +48,13 @@ function App() {
           <Route path="/boardings/:listingId" element={<BoardingDetailsPage />} />
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/bookmarks" element={<BookmarksPage />} />
+            <Route path="/student-profile" element={<StudentProfilePage />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
+            <Route path="/owner-dashboard" element={<HostelOwnerProfilePage />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
           </Route>
         </Route>
       </Routes>

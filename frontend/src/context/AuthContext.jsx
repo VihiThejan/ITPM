@@ -1,6 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-import { loginUser, registerUser, getMe } from "../services/authService";
+import {
+  getMe,
+  loginRoleUser,
+  loginUser,
+  registerHostelOwnerUser,
+  registerStudentUser,
+  registerUser,
+  verifyOtpCode
+} from "../services/authService";
 import { setAuthToken } from "../services/apiClient";
 
 const AuthContext = createContext(null);
@@ -47,6 +55,17 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const loginWithRole = async (payload) => {
+    const response = await loginRoleUser(payload);
+    localStorage.setItem("token", response.token);
+    setAuthToken(response.token);
+    setUser({
+      ...response.user,
+      token: response.token
+    });
+    return response;
+  };
+
   const register = async (payload) => {
     const response = await registerUser(payload);
     localStorage.setItem("token", response.token);
@@ -55,6 +74,25 @@ export function AuthProvider({ children }) {
       ...response.user,
       token: response.token
     });
+  };
+
+  const registerStudent = async (payload) => {
+    return registerStudentUser(payload);
+  };
+
+  const registerHostelOwner = async (payload) => {
+    return registerHostelOwnerUser(payload);
+  };
+
+  const verifyOtp = async (payload) => {
+    const response = await verifyOtpCode(payload);
+    localStorage.setItem("token", response.token);
+    setAuthToken(response.token);
+    setUser({
+      ...response.user,
+      token: response.token
+    });
+    return response;
   };
 
   const logout = () => {
@@ -68,7 +106,11 @@ export function AuthProvider({ children }) {
       user,
       setUser,
       login,
+      loginWithRole,
       register,
+      registerStudent,
+      registerHostelOwner,
+      verifyOtp,
       logout,
       isAuthLoading
     }),

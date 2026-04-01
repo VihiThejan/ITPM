@@ -10,25 +10,22 @@ import {
   Typography
 } from "@mui/material";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 
-const roles = ["student", "owner"];
+const roles = ["student", "owner", "admin"];
 
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, register } = useAuth();
+  const { loginWithRole } = useAuth();
   const redirectTo = location.state?.from?.pathname || "/home";
 
-  const [mode, setMode] = useState("login");
   const [form, setForm] = useState({
-    name: "",
     email: "",
     password: "",
-    role: "student",
-    phone: ""
+    role: "student"
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,17 +38,7 @@ function LoginPage() {
       setError("");
       setLoading(true);
 
-      if (mode === "login") {
-        await login({ email: form.email, password: form.password });
-      } else {
-        await register({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          role: form.role,
-          phone: form.phone
-        });
-      }
+      await loginWithRole({ email: form.email, password: form.password, role: form.role });
 
       navigate(redirectTo, { replace: true });
     } catch (requestError) {
@@ -68,22 +55,11 @@ function LoginPage() {
           <CardContent>
             <Stack spacing={2} component="form" onSubmit={handleSubmit}>
               <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                {mode === "login" ? "Sign In" : "Create Account"}
+                Sign In
               </Typography>
               <Typography color="text.secondary">
-                {mode === "login"
-                  ? "Access bookmarks and verified student review actions."
-                  : "Students must use @my.sliit.lk email for verified access."}
+                Use your role account. Student and owner accounts require OTP verification.
               </Typography>
-
-              {mode === "register" ? (
-                <TextField
-                  label="Full Name"
-                  value={form.name}
-                  onChange={(event) => update("name", event.target.value)}
-                  required
-                />
-              ) : null}
 
               <TextField
                 label="Email"
@@ -100,41 +76,30 @@ function LoginPage() {
                 required
               />
 
-              {mode === "register" ? (
-                <>
-                  <TextField
-                    select
-                    label="Role"
-                    value={form.role}
-                    onChange={(event) => update("role", event.target.value)}
-                  >
-                    {roles.map((role) => (
-                      <MenuItem key={role} value={role}>
-                        {role}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  <TextField
-                    label="Phone (optional)"
-                    value={form.phone}
-                    onChange={(event) => update("phone", event.target.value)}
-                  />
-                </>
-              ) : null}
+              <TextField
+                select
+                label="Role"
+                value={form.role}
+                onChange={(event) => update("role", event.target.value)}
+              >
+                {roles.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               {error ? <Alert severity="error">{error}</Alert> : null}
 
               <Button variant="contained" type="submit" disabled={loading}>
-                {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Register"}
+                {loading ? "Please wait..." : "Sign In"}
               </Button>
-              <Button
-                variant="text"
-                onClick={() => setMode((prev) => (prev === "login" ? "register" : "login"))}
-              >
-                {mode === "login"
-                  ? "Need an account? Register"
-                  : "Already have an account? Sign In"}
-              </Button>
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                <Button component={RouterLink} to="/register-student">Register Student</Button>
+                <Button component={RouterLink} to="/register-hostel-owner">Register Owner</Button>
+                <Button component={RouterLink} to="/admin-login">Admin Login</Button>
+              </Stack>
             </Stack>
           </CardContent>
         </Card>
