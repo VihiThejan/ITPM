@@ -7,6 +7,8 @@ Component-based MERN application focused on student boarding discovery with:
 - Compare boardings workflow (2-3 listings)
 - Verified student ratings and comments
 - Student bookmarks
+- OTP-based role registration and login (Student, Hostel Owner, Admin)
+- Student, owner, and admin profile/dashboard views
 - Landing page
 - Home page
 
@@ -47,6 +49,13 @@ ITPM/
 - `/boardings` Boarding search with advanced filters, recently viewed, and compare strip/modal
 - `/boardings/:listingId` Boarding details with map, WhatsApp CTA, reviews, bookmark toggle
 - `/bookmarks` Saved boarding list (student-only)
+- `/register-student` Student registration with OTP onboarding
+- `/register-hostel-owner` Hostel owner registration with OTP onboarding
+- `/verify-otp` OTP verification
+- `/admin-login` Admin login
+- `/student-profile` Student profile (student-only)
+- `/owner-dashboard` Owner profile/dashboard (owner-only)
+- `/admin-dashboard` Admin dashboard (admin-only)
 
 ### Student UX highlights
 
@@ -68,7 +77,24 @@ ITPM/
 - `GET /api/health`
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `POST /api/auth/login/role`
 - `GET /api/auth/me`
+- `POST /api/students/register`
+- `GET /api/students` (admin only)
+- `GET /api/students/:id` (admin or self)
+- `PUT /api/students/:id` (admin or self)
+- `DELETE /api/students/:id` (admin only)
+- `POST /api/hostel-owners/register`
+- `GET /api/hostel-owners` (admin only)
+- `GET /api/hostel-owners/:id` (admin or self)
+- `PUT /api/hostel-owners/:id` (admin or self)
+- `DELETE /api/hostel-owners/:id` (admin only)
+- `GET /api/admin` (admin only)
+- `GET /api/admin/:id` (admin only)
+- `DELETE /api/admin/:id` (admin only)
+- `POST /api/otp/send`
+- `POST /api/otp/verify`
+- `POST /api/otp/resend`
 - `GET /api/listings`
 - `GET /api/listings/:listingId`
 - `GET /api/reviews?listingId=...`
@@ -89,7 +115,10 @@ Use `backend/.env.example` as reference.
 - `PORT`
 - `MONGODB_URI`
 - `JWT_SECRET`
+- `JWT_EXPIRES_IN` (optional, default `7d`)
 - `CLIENT_URL`
+- `GMAIL_USER`
+- `GMAIL_APP_PASSWORD`
 
 ### Frontend (`frontend/.env`)
 
@@ -128,6 +157,7 @@ npm run dev
   - `sub` (user id)
   - `role` (`student`, `owner`, `admin`)
   - `isVerifiedStudent` (boolean)
+- OTP verification is mandatory for student and owner role accounts before role login.
 - Review submission is restricted to verified students.
 - Listing search returns only approved and available entries.
 - Owner privacy rule is respected by only exposing safe review data to public/student views.
