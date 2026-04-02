@@ -73,9 +73,18 @@ function AppLayout() {
             component={RouterLink}
             to={item.to}
             onClick={closeMobileDrawer}
-            sx={{ borderRadius: 1.5, mb: 0.5 }}
+            sx={{ 
+              borderRadius: 2, 
+              mb: 0.5,
+              transition: "all 0.2s ease-in-out",
+              "&:hover": {
+                bgcolor: "primary.50",
+                color: "primary.main",
+                transform: "translateX(4px)"
+              }
+            }}
           >
-            <ListItemText primary={item.label} />
+            <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 600 }} />
           </ListItemButton>
         ))}
       </List>
@@ -150,9 +159,10 @@ function AppLayout() {
           color="transparent"
           elevation={0}
           sx={{
-            backdropFilter: "blur(8px)",
-            borderBottom: "1px solid #d9e2f2",
-            bgcolor: "rgba(248, 251, 255, 0.8)"
+            backdropFilter: "blur(16px)",
+            borderBottom: "1px solid rgba(217, 226, 242, 0.6)",
+            bgcolor: "rgba(255, 255, 255, 0.75)",
+            transition: "all 0.3s ease-in-out"
           }}
         >
           <Toolbar>
@@ -170,7 +180,18 @@ function AppLayout() {
 
             <Stack direction="row" spacing={1} sx={{ display: { xs: "none", sm: "flex" } }}>
               {navItems.map((item) => (
-                <Button key={item.to} component={RouterLink} to={item.to} color="inherit">
+                <Button 
+                  key={item.to} 
+                  component={RouterLink} 
+                  to={item.to} 
+                  color="inherit"
+                  sx={{
+                    fontWeight: 600,
+                    opacity: 0.85,
+                    transition: "all 0.2s ease",
+                    "&:hover": { opacity: 1, transform: "translateY(-1px)", color: "primary.main", bgcolor: "transparent" }
+                  }}
+                >
                   {item.label}
                 </Button>
               ))}

@@ -87,19 +87,23 @@ function HomePage() {
         elevation={0}
         sx={{
           background: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-          borderRadius: 2,
-          p: 4,
-          color: "white"
+          borderRadius: 4,
+          p: { xs: 4, md: 6 },
+          color: "white",
+          position: "relative",
+          overflow: "hidden"
         }}
+        className="animate-fade-in"
       >
-        <Stack spacing={1.5}>
-          <Typography variant="h3" sx={{ fontWeight: 700 }}>
+        <Box sx={{ position: "absolute", top: -100, right: -50, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%)" }} />
+        <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
+          <Typography variant="h3" sx={{ fontWeight: 800 }}>
             Welcome to BoardMe
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.95 }}>
+          <Typography variant="h6" sx={{ opacity: 0.95, fontWeight: 500 }}>
             Find your perfect student boarding in minutes
           </Typography>
-          <Typography sx={{ opacity: 0.85, maxWidth: 500 }}>
+          <Typography sx={{ opacity: 0.85, maxWidth: 500, lineHeight: 1.6 }}>
             Browse verified boarding listings, compare prices, read reviews from fellow students, and secure your spot near campus.
           </Typography>
           <Button
@@ -111,9 +115,16 @@ function HomePage() {
               alignSelf: "flex-start",
               backgroundColor: "white",
               color: "#2563eb",
-              fontWeight: 600,
+              fontWeight: 700,
+              borderRadius: 50,
+              px: 4,
+              py: 1.5,
+              mt: 1,
+              transition: "all 0.2s ease",
               "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.9)"
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                transform: "translateY(-2px)",
+                boxShadow: "0 8px 16px rgba(0,0,0,0.1)"
               }
             }}
           >
@@ -123,51 +134,51 @@ function HomePage() {
       </Paper>
 
       {/* Statistics Section */}
-      <Grid2 container spacing={2}>
+      <Grid2 container spacing={2} className="animate-pop-in">
         <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ textAlign: "center" }}>
+          <Card sx={{ textAlign: "center", py: 1 }}>
             <CardContent>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: "primary.main" }}>
+              <Typography variant="h4" sx={{ fontWeight: 800, color: "primary.main" }}>
                 {stats.totalListings}+
               </Typography>
-              <Typography color="text.secondary">Available Boardings</Typography>
+              <Typography color="text.secondary" sx={{ fontWeight: 500, mt: 0.5 }}>Available Boardings</Typography>
             </CardContent>
           </Card>
         </Grid2>
         <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ textAlign: "center" }}>
+          <Card sx={{ textAlign: "center", py: 1 }}>
             <CardContent>
               <Stack alignItems="center" spacing={0.5}>
                 <Rating value={stats.avgRating} readOnly precision={0.1} size="small" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>
                   {stats.avgRating}
                 </Typography>
               </Stack>
-              <Typography color="text.secondary" variant="small">
+              <Typography color="text.secondary" variant="small" sx={{ fontWeight: 500 }}>
                 Average Rating
               </Typography>
             </CardContent>
           </Card>
         </Grid2>
         <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ textAlign: "center" }}>
+          <Card sx={{ textAlign: "center", py: 1 }}>
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: "success.main" }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: "success.main" }}>
                 {formatLkr(stats.priceRange.min)}
               </Typography>
-              <Typography color="text.secondary" variant="small">
+              <Typography color="text.secondary" variant="small" sx={{ fontWeight: 500, mt: 0.5 }}>
                 Starting Price
               </Typography>
             </CardContent>
           </Card>
         </Grid2>
         <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ textAlign: "center" }}>
+          <Card sx={{ textAlign: "center", py: 1 }}>
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: "warning.main" }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: "warning.main" }}>
                 {formatLkr(stats.priceRange.max)}
               </Typography>
-              <Typography color="text.secondary" variant="small">
+              <Typography color="text.secondary" variant="small" sx={{ fontWeight: 500, mt: 0.5 }}>
                 Max Price
               </Typography>
             </CardContent>
@@ -240,26 +251,30 @@ function HomePage() {
                   sx={{
                     height: "100%",
                     textDecoration: "none",
-                    transition: "all 0.3s ease",
                     cursor: "pointer",
+                    overflow: "hidden",
                     "&:hover": {
-                      boxShadow: 3,
-                      transform: "translateY(-4px)"
+                      boxShadow: "0 12px 28px rgba(0,0,0,0.1)",
+                      "& .listing-img": { transform: "scale(1.05)" }
                     }
                   }}
                 >
                   {listing.photos && listing.photos[0] && (
-                    <Box
-                      component="img"
-                      src={listing.photos[0]}
-                      alt={listing.name}
-                      sx={{
-                        width: "100%",
-                        height: 180,
-                        objectFit: "cover",
-                        backgroundColor: "action.hover"
-                      }}
-                    />
+                    <Box sx={{ overflow: "hidden" }}>
+                      <Box
+                        component="img"
+                        src={listing.photos[0]}
+                        alt={listing.name}
+                        className="listing-img"
+                        sx={{
+                          width: "100%",
+                          height: 200,
+                          objectFit: "cover",
+                          backgroundColor: "action.hover",
+                          transition: "transform 0.5s ease"
+                        }}
+                      />
+                    </Box>
                   )}
                   <CardContent>
                     <Stack spacing={1}>
